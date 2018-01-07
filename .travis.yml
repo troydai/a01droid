@@ -10,17 +10,17 @@ jobs:
     script:
     - pip install -r requirements.txt
     - pylint app
-    - version=`cat ./version`
-    - image=azureclidev.azurecr.io/azurecli-a01-droid:python3.6-$version
+    - image=azurecli-a01-droid:python3.6-$TRAVIS_BUILD_NUMBER
     - docker build -t $image -f dockerfiles/python3.6/Dockerfile .
     - docker images
   - stage: publish
-    if: "(tag IS present) AND (branch = master)"
+    if: tag IS present
     script:
-    - version=`cat ./version`
-    - image=azureclidev.azurecr.io/azurecli-a01-droid:python3.6-$version
     - docker login azureclidev.azurecr.io -u $AZURECLIDEV_ACR_SP_USERNAME -p $AZURECLIDEV_ACR_SP_PASSWORD
-    - docker push $image
+    - docker tag azurecli-a01-droid:python3.6-$TRAVIS_BUILD_NUMBER azureclidev.azurecr.io/azurecli-a01-droid:python3.6-$TRAVIS_TAG
+    - docker tag azurecli-a01-droid:python3.6-$TRAVIS_BUILD_NUMBER azureclidev.azurecr.io/azurecli-a01-droid:python3.6-latest
+    - docker push azureclidev.azurecr.io/azurecli-a01-droid:python3.6-$TRAVIS_TAG
+    - docker push azureclidev.azurecr.io/azurecli-a01-droid:python3.6-latest
 env:
   global:
   - secure: VT18NTDs+oMecOG6I/mk98JwcUhchAP+leVhtGgxz7ZKVVKDg9jZNF5HOM0SKQUGfIPBtVVrUYrM1r2ku9EGnG+3RxsKKHjrzKk0Fq8smnJLLkzv7ITOEp8uLQcSqSlLlHOtd2CFrWfcn6pWk8n0MyBFiEKVCFS4DC3yeLId4D18YgtQfmIuv76C+ISQvRFGWt0j9zBQcWM3YrgZ++j1Ynn2HAS2Xns80zx1FevFVKM5yHAxmcNO3xPtKdJ6ue57j09zdkLN89Yv73W80McHV92FAIWe/TiHHJwU4sKa2N0NAj5Pf7LL6L3P76SBCxn0UtDE39leo/ii2al4VSQlep7kBUA8zQ9Ev8PqluVG4l7O3cohBbvW6z0c6mniYzRsiCTLopQXDZxYb62U/HLxM0DSm3rcFFjexoH/4tplagONmPMhbmRrfyzNw7t2kQx9/+FxiGMoPZMUVNl+TKbARjg+9wyt67ztg3kYGMbKbvp7YQ7gol5HbFphOLonZACo2XSYqa4X/8g0CxAgv38VJQFFtjxgJY0GMDrJz8DqzM+PwRoJoUj/NjaxN5DXLfXDGN9b4iS5w1jX3LIilVsitiMTIX2bBxPlnFTQNcpwGD986kdvDvgukE6FatE9+8S6BXXIZgbf/5DzMFOUxY4ESX29vPCdvP+KrPcVkrj8TUA=
